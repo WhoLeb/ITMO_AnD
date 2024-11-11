@@ -33,28 +33,17 @@ namespace myStl
 		It mid = first + (last - first) / 2;
 		if (comp(*mid, *first)) swap(*first, *mid);
 		if (comp(*(last - 1), *first)) swap(*first, *(last - 1));
-		if (comp(*(last - 1), *mid)) swap(*mid, *(last - 1));
 
 		swap(*mid, *(last - 1));
 
-		//auto pivot = last - 1;
-		//auto i = first;
-		//for (auto j = first; j != pivot; ++j)
-		//{
-		//	if (comp(*j, *pivot))
-		//	{
-		//		swap(*i++, *j);
-		//	}
-		//}
-		//std::swap(*i, *pivot);
-		//return i;
-		auto pivot = std::move(*(last - 1));
+		auto pivot = *(last - 1);
 		It left = first;
 		It right = last - 2;
 
-		while (true) {
-			while (left <= right && comp(*left, pivot)) ++left;		// сдвигаемся до первого элемента слева больше пивота
-			while (right >= left && comp(pivot, *right)) --right;	// сдвигаемся до первого элемента справа меньше пивота
+		while (true)
+		{
+			while (left <= right && comp(*left, pivot)) ++left;
+			while (right >= left && comp(pivot, *right)) --right;
 			if (left >= right) break;
 			swap(*left, *right);
 			++left;
@@ -64,17 +53,13 @@ namespace myStl
 		return left;
 	}
 
-	int insertionSortThreshold = 10;
 	template<typename It, typename Compare>
 	void quickSort(It first, It last, Compare comp)
 	{
-
-		//if (last - first <= insertionSortThreshold)
-		//{
-		//	return;
-		//}
-		while (last - first > insertionSortThreshold) {
-			It pivot = partition(first, last, comp);
+		constexpr int insertionSortThreshold = 512;
+		while (last - first > insertionSortThreshold)
+		{
+			It pivot = myStl::partition(first, last, comp);
 			if (pivot - first < last - (pivot + 1))
 			{
 				quickSort(first, pivot, comp);
