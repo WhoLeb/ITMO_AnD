@@ -15,18 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DynamicArray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Array.ipp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Array.cpp">
+    <ClCompile Include="src\QuickSort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Array.h">
+    <ClInclude Include="src\MyAlgorithm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nanobench.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

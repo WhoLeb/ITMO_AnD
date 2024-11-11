@@ -1,7 +1,44 @@
 #pragma once
+
 #include <cstddef>
 #include <initializer_list>
 #include <iterator>
+
+#ifdef CHECK_ALLOCATIONS
+namespace
+{
+	struct Stats
+	{
+		size_t allocations{ 0 };
+		size_t deallocations{ 0 };
+
+		friend std::ostream& operator<<(std::ostream& os, Stats st)
+		{
+			os << "Allocations: " << st.allocations << ", deallocations: " << st.deallocations << "\n";
+			return os;
+		}
+	} g_Stats;
+	void* my_malloc(size_t size)
+	{
+		g_Stats.allocations++;
+		return malloc(size);
+	}
+	void my_free(void* block)
+	{
+		g_Stats.deallocations++;
+		free(block);
+	}
+}
+#else
+	void* my_malloc(size_t size)
+	{
+		return malloc(size);
+	}
+	void my_free(void* block)
+	{
+		free(block);
+	}
+#endif
 
 namespace myStl
 {
@@ -12,25 +49,42 @@ namespace myStl
 	public:
 		struct Iterator
 		{
-			using iterator_category = std::bidirectional_iterator_tag;
-			using difference_type = std::ptrdiff_t;
-			using value_type = T;
-			using pointer = T*;
-			using reference = T&;
+			using iterator_category	= std::random_access_iterator_tag;
+			using difference_type	= std::ptrdiff_t;
+			using value_type		= T;
+			using pointer			= T*;
+			using reference			= T&;
 
 		public:
 			Iterator(Array<T>* arr, int64_t pos = 0) : m_pArr(arr), m_Position(pos) {}
 
-			reference operator*() const { return (*m_pArr)[m_Position]; }
-			pointer operator->() { return &(*m_pArr)[m_Position]; }
+			reference operator*() const { return m_pArr->m_data[m_Position]; }
+			pointer operator->() { return &m_pArr->m_data[m_Position]; }
+			//operator T* () const { return &m_pArr->m_data[m_Position]; }
 
+			// Bidirectional iterator increments and decrements
 			Iterator& operator++() { m_Position++; return *this; }
 			Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
 			Iterator& operator--() { m_Position--; return *this; }
 			Iterator operator--(int) { Iterator tmp = *this; --(*this); return tmp; }
 
+			// Random access operations
+			Iterator& operator +=(difference_type n) { m_Position += n; return *this; }
+			Iterator operator +(difference_type n) const { return Iterator(m_pArr, m_Position + n); }
+			friend Iterator operator +(difference_type n, const Iterator& it) { return Iterator(it.m_pArr, it.m_Position + n); }
+			Iterator& operator -=(difference_type n) { m_Position -= n; return *this; }
+			Iterator operator -(difference_type n) const { return Iterator(m_pArr, m_Position - n); }
+			difference_type operator-(const Iterator& other) const { return m_Position - other.m_Position; }
+
+			// Element access for random access
+			reference operator[](difference_type n) const { return m_pArr->m_data[m_Position + n]; }
+
 			friend bool operator==(const Iterator& a, const Iterator& b) { return a.m_pArr == b.m_pArr && a.m_Position == b.m_Position; }
 			friend bool operator!=(const Iterator& a, const Iterator& b) { return a.m_pArr != b.m_pArr || a.m_Position != b.m_Position; }
+			friend bool operator<(const Iterator& a, const Iterator& b) { return a.m_pArr == b.m_pArr && a.m_Position < b.m_Position; }
+			friend bool operator>(const Iterator& a, const Iterator& b) { return b < a; }
+			friend bool operator<=(const Iterator& a, const Iterator& b) { return !(b < a); }
+			friend bool operator>=(const Iterator& a, const Iterator& b) { return !(a < b); }
 
 			const reference get() const { return m_pArr->m_data[m_Position]; }
 			void set(const reference value) { m_pArr->m_data[m_Position] = value; }
@@ -46,31 +100,50 @@ namespace myStl
 
 		struct ConstIterator
 		{
-			using iterator_category = std::bidirectional_iterator_tag;
-			using difference_type = std::ptrdiff_t;
-			using value_type = T;
-			using pointer = const T*;
-			using reference = const T&;
+			using iterator_category	= std::random_access_iterator_tag;
+			using difference_type	= std::ptrdiff_t;
+			using value_type		= T;
+			using pointer			= const T*;
+			using reference			= const T&;
 
 		public:
 			ConstIterator(const Array<T>* arr, int64_t pos = 0) : m_pArr(arr), m_Position(pos) {}
-			
-			reference operator*() const { return (*m_pArr)[m_Position]; }
-			pointer operator->() const { return &(*m_pArr)[m_Position]; }
 
+			reference operator*() const { return m_pArr->m_data[m_Position]; }
+			pointer operator->() { return &m_pArr->m_data[m_Position]; }
+			//operator T* () const { return &m_pArr->m_data[m_Position]; }
+
+			// Bidirectional iterator increments and decrements
 			ConstIterator& operator++() { m_Position++; return *this; }
 			ConstIterator operator++(int) { ConstIterator tmp = *this; ++(*this); return tmp; }
 			ConstIterator& operator--() { m_Position--; return *this; }
 			ConstIterator operator--(int) { ConstIterator tmp = *this; --(*this); return tmp; }
 
+			// Random access operations
+			ConstIterator& operator +=(difference_type n) { m_Position += n; return *this; }
+			ConstIterator operator +(difference_type n) const { return ConstIterator(m_pArr, m_Position + n); }
+			friend ConstIterator operator +(difference_type n, const ConstIterator& it) { return ConstIterator(it.m_pArr, it.m_Position + n); }
+			ConstIterator& operator -=(difference_type n) { m_Position -= n; return *this; }
+			ConstIterator operator -(difference_type n) const { return ConstIterator(m_pArr, m_Position - n); }
+			difference_type operator-(const ConstIterator& other) const { return m_Position - other.m_Position; }
+
+			// Element access for random access
+			reference operator[](difference_type n) const { return m_pArr->m_data[m_Position + n]; }
+
 			friend bool operator==(const ConstIterator& a, const ConstIterator& b) { return a.m_pArr == b.m_pArr && a.m_Position == b.m_Position; }
 			friend bool operator!=(const ConstIterator& a, const ConstIterator& b) { return a.m_pArr != b.m_pArr || a.m_Position != b.m_Position; }
+			friend bool operator<(const ConstIterator& a, const ConstIterator& b) { return a.m_pArr == b.m_pArr && a.m_Position < b.m_Position; }
+			friend bool operator>(const ConstIterator& a, const ConstIterator& b) { return b < a; }
+			friend bool operator<=(const ConstIterator& a, const ConstIterator& b) { return !(b < a); }
+			friend bool operator>=(const ConstIterator& a, const ConstIterator& b) { return !(a < b); }
 
 			const reference get() const { return m_pArr->m_data[m_Position]; }
+			void set(const reference value) { m_pArr->m_data[m_Position] = value; }
 			void next() { m_Position++; }
 			void previous() { m_Position--; }
 			bool hasNext() const { return m_Position < m_pArr->m_size; }
 			bool hasPrevious() const { return m_Position >= 0; }
+
 		private:
 			const Array<T>* m_pArr;
 			int64_t m_Position;

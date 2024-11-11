@@ -10,7 +10,7 @@ namespace myStl
 	inline Array<T>::Array()
 		: m_size(0), m_capacity(8)
 	{
-		m_data = (T*)malloc(sizeof(T) * m_capacity);
+		m_data = (T*)my_malloc(sizeof(T) * m_capacity);
 		if (!m_data)
 			throw std::bad_alloc();
 	}
@@ -20,7 +20,7 @@ namespace myStl
 	inline Array<T>::Array(size_t capacity)
 		: m_size(0), m_capacity(capacity)
 	{
-		m_data = (T*)malloc(sizeof(T) * m_capacity);
+		m_data = (T*)my_malloc(sizeof(T) * m_capacity);
 		if (!m_data)
 			throw std::bad_alloc();
 	}
@@ -30,7 +30,7 @@ namespace myStl
 	inline Array<T>::Array(std::initializer_list<T> initList)
 		: m_size(initList.size()), m_capacity(initList.size())
 	{
-		m_data = (T*)malloc(sizeof(T) * m_capacity);
+		m_data = (T*)my_malloc(sizeof(T) * m_capacity);
 		if (!m_data)
 			throw std::bad_alloc();
 		int i = 0;
@@ -45,7 +45,7 @@ namespace myStl
 		m_capacity = other.m_capacity;
 		m_size = other.m_size;
 
-		m_data = (T*)malloc(sizeof(T) * m_capacity);
+		m_data = (T*)my_malloc(sizeof(T) * m_capacity);
 
 		memcpy(m_data, other.m_data, m_size * sizeof(T));
 	}
@@ -59,12 +59,12 @@ namespace myStl
 
 		for (size_t i = 0; i < m_size; i++)
 			m_data[i].~T();
-		free(m_data);
+		my_free(m_data);
 
 		m_capacity = other.m_capacity;
 		m_size = other.m_size;
 
-		m_data = (T*)malloc(sizeof(T) * m_capacity);
+		m_data = (T*)my_malloc(sizeof(T) * m_capacity);
 
 		memcpy(m_data, other.m_data, m_size * sizeof(T));
 
@@ -93,7 +93,7 @@ namespace myStl
 
 		for (size_t i = 0; i < m_size; i++)
 			m_data[i].~T();
-		free(m_data);
+		my_free(m_data);
 
 		m_capacity = other.m_capacity;
 		m_size = other.m_size;
@@ -111,8 +111,9 @@ namespace myStl
 	{
 		for (size_t i = 0; i < m_size; i++)
 			m_data[i].~T();
-		free(m_data);
+		my_free(m_data);
 		m_size = 0;
+		m_capacity = 0;
 		m_data = nullptr;
 	}
 
@@ -259,7 +260,7 @@ namespace myStl
 	template<typename T>
 	void inline Array<T>::reserve(size_t newCapacity)
 	{
-		T* tmp = (T*)malloc(sizeof(T) * newCapacity);
+		T* tmp = (T*)my_malloc(sizeof(T) * newCapacity);
 		if (!tmp)
 			throw std::bad_alloc();
 
@@ -277,7 +278,7 @@ namespace myStl
 			}
 		}
 
-		free(m_data);
+		my_free(m_data);
 		m_data = tmp;
 		m_capacity = newCapacity;
 	}

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../DynamicArray/Array.h"
+#include "../DynamicArray/src/Array.h"
 
 class MovableClass {
 public:
