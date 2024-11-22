@@ -131,7 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Array.cpp" />
     <ClCompile Include="src\Array.ipp" />
     <ClCompile Include="DynamicArray.cpp" />
   </ItemGroup>

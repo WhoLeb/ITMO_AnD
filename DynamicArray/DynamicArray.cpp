@@ -29,5 +29,13 @@ int main()
 	}
 	std::cout << "\n\n" << g_Stats;
 
+	myStl::Array<int> a = { 1, 2, 3, 4 };
+	std::vector<int> tmp(4);
+	std::vector<int> control = { 4, 3, 2, 1 };
+	int i = 0;
+	for (auto it = a.reverseIterator(); it.hasNext(); it.next())
+		tmp[i++] = it.get();
+
+
 	return 0;
 }

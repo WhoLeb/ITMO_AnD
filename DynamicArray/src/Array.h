@@ -56,28 +56,28 @@ namespace myStl
 			using reference			= T&;
 
 		public:
-			Iterator(Array<T>* arr, int64_t pos = 0) : m_pArr(arr), m_Position(pos) {}
+			Iterator(Array<T>* arr, int64_t pos = 0, int direction = 1) : m_pArr(arr), m_Position(pos), m_direction(direction) {}
 
 			reference operator*() const { return m_pArr->m_data[m_Position]; }
 			pointer operator->() { return &m_pArr->m_data[m_Position]; }
 			//operator T* () const { return &m_pArr->m_data[m_Position]; }
 
 			// Bidirectional iterator increments and decrements
-			Iterator& operator++() { m_Position++; return *this; }
+			Iterator& operator++() { m_Position += m_direction; return *this; }
 			Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
-			Iterator& operator--() { m_Position--; return *this; }
+			Iterator& operator--() { m_Position -= m_direction; return *this; }
 			Iterator operator--(int) { Iterator tmp = *this; --(*this); return tmp; }
 
 			// Random access operations
-			Iterator& operator +=(difference_type n) { m_Position += n; return *this; }
-			Iterator operator +(difference_type n) const { return Iterator(m_pArr, m_Position + n); }
-			friend Iterator operator +(difference_type n, const Iterator& it) { return Iterator(it.m_pArr, it.m_Position + n); }
-			Iterator& operator -=(difference_type n) { m_Position -= n; return *this; }
-			Iterator operator -(difference_type n) const { return Iterator(m_pArr, m_Position - n); }
+			Iterator& operator +=(difference_type n) { m_Position += n * m_direction; return *this; }
+			Iterator operator +(difference_type n) const { return Iterator(m_pArr, m_Position + n * m_direction); }
+			friend Iterator operator +(difference_type n, const Iterator& it) { return Iterator(it.m_pArr, it.m_Position + n * it.m_direction); }
+			Iterator& operator -=(difference_type n) { m_Position -= n * m_direction; return *this; }
+			Iterator operator -(difference_type n) const { return Iterator(m_pArr, m_Position - n * m_direction); }
 			difference_type operator-(const Iterator& other) const { return m_Position - other.m_Position; }
 
 			// Element access for random access
-			reference operator[](difference_type n) const { return m_pArr->m_data[m_Position + n]; }
+			reference operator[](difference_type n) const { return m_pArr->m_data[m_Position + n * m_direction]; }
 
 			friend bool operator==(const Iterator& a, const Iterator& b) { return a.m_pArr == b.m_pArr && a.m_Position == b.m_Position; }
 			friend bool operator!=(const Iterator& a, const Iterator& b) { return a.m_pArr != b.m_pArr || a.m_Position != b.m_Position; }
@@ -88,14 +88,15 @@ namespace myStl
 
 			const reference get() const { return m_pArr->m_data[m_Position]; }
 			void set(const reference value) { m_pArr->m_data[m_Position] = value; }
-			void next() { m_Position++; }
-			void previous() { m_Position--; }
-			bool hasNext() const { return m_Position < m_pArr->m_size; }
-			bool hasPrevious() const { return m_Position >= 0; }
+			void next() { m_Position += m_direction; }
+			void previous() { m_Position -= m_direction; }
+			bool hasNext() const { return m_direction == 1 ? m_Position < m_pArr->m_size : m_Position >= 0; }
+			bool hasPrevious() const { return m_direction == 1 ? m_Position >= 0 : m_Position < m_pArr->m_size; }
 
 		private:
 			Array<T>* m_pArr;
 			int64_t m_Position;
+			int m_direction;
 		};
 
 		struct ConstIterator
@@ -107,28 +108,28 @@ namespace myStl
 			using reference			= const T&;
 
 		public:
-			ConstIterator(const Array<T>* arr, int64_t pos = 0) : m_pArr(arr), m_Position(pos) {}
+			ConstIterator(const Array<T>* arr, int64_t pos = 0, int direction = 1) : m_pArr(arr), m_Position(pos), m_direction(direction) {}
 
 			reference operator*() const { return m_pArr->m_data[m_Position]; }
 			pointer operator->() { return &m_pArr->m_data[m_Position]; }
 			//operator T* () const { return &m_pArr->m_data[m_Position]; }
 
 			// Bidirectional iterator increments and decrements
-			ConstIterator& operator++() { m_Position++; return *this; }
+			ConstIterator& operator++() { m_Position += m_direction; return *this; }
 			ConstIterator operator++(int) { ConstIterator tmp = *this; ++(*this); return tmp; }
-			ConstIterator& operator--() { m_Position--; return *this; }
+			ConstIterator& operator--() { m_Position -= m_direction; return *this; }
 			ConstIterator operator--(int) { ConstIterator tmp = *this; --(*this); return tmp; }
 
 			// Random access operations
-			ConstIterator& operator +=(difference_type n) { m_Position += n; return *this; }
-			ConstIterator operator +(difference_type n) const { return ConstIterator(m_pArr, m_Position + n); }
-			friend ConstIterator operator +(difference_type n, const ConstIterator& it) { return ConstIterator(it.m_pArr, it.m_Position + n); }
-			ConstIterator& operator -=(difference_type n) { m_Position -= n; return *this; }
-			ConstIterator operator -(difference_type n) const { return ConstIterator(m_pArr, m_Position - n); }
+			ConstIterator& operator +=(difference_type n) { m_Position += n * m_direction; return *this; }
+			ConstIterator operator +(difference_type n) const { return ConstIterator(m_pArr, m_Position + n * m_direction); }
+			friend ConstIterator operator +(difference_type n, const ConstIterator& it) { return ConstIterator(it.m_pArr, it.m_Position + n * it.m_direction); }
+			ConstIterator& operator -=(difference_type n) { m_Position -= n * m_direction; return *this; }
+			ConstIterator operator -(difference_type n) const { return ConstIterator(m_pArr, m_Position - n * m_direction); }
 			difference_type operator-(const ConstIterator& other) const { return m_Position - other.m_Position; }
 
 			// Element access for random access
-			reference operator[](difference_type n) const { return m_pArr->m_data[m_Position + n]; }
+			reference operator[](difference_type n) const { return m_pArr->m_data[m_Position + n * m_direction]; }
 
 			friend bool operator==(const ConstIterator& a, const ConstIterator& b) { return a.m_pArr == b.m_pArr && a.m_Position == b.m_Position; }
 			friend bool operator!=(const ConstIterator& a, const ConstIterator& b) { return a.m_pArr != b.m_pArr || a.m_Position != b.m_Position; }
@@ -139,31 +140,32 @@ namespace myStl
 
 			const reference get() const { return m_pArr->m_data[m_Position]; }
 			void set(const reference value) { m_pArr->m_data[m_Position] = value; }
-			void next() { m_Position++; }
-			void previous() { m_Position--; }
-			bool hasNext() const { return m_Position < m_pArr->m_size; }
-			bool hasPrevious() const { return m_Position >= 0; }
+			void next() { m_Position += m_direction; }
+			void previous() { m_Position -= m_direction; }
+			bool hasNext() const { return m_direction == 1 ? m_Position < m_pArr->m_size : m_Position >= 0; }
+			bool hasPrevious() const { return m_direction == 1 ? m_Position >= 0 : m_Position < m_pArr->m_size; }
 
 		private:
 			const Array<T>* m_pArr;
 			int64_t m_Position;
+			int m_direction;
 		};
 
 		// smort stl-comforming iterators
 		Iterator begin() { return Iterator(this); }
 		Iterator end() { return Iterator(this, m_size); }
-		Iterator rbegin() { return --end(); }
-		Iterator rend() { return --begin(); }
+		Iterator rbegin() { return Iterator(this, m_size - 1, -1); }
+		Iterator rend() { return Iterator(this, -1, -1); }
 		ConstIterator cbegin() const { return ConstIterator(this); }
 		ConstIterator cend() const { return ConstIterator(this, m_size); }
-		ConstIterator crbegin() const { return --cend(); }
-		ConstIterator crend() const { return --cbegin(); }
+		ConstIterator crbegin() const { return ConstIterator(this, m_size - 1, -1); }
+		ConstIterator crend() const { return ConstIterator(this, -1, -1); }
 
 		//silly non-stl iterators. Task
 		Iterator iterator() { return Iterator(this); }
-		Iterator reverseIterator() { return Iterator(this, m_size - 1); }
+		Iterator reverseIterator() { return Iterator(this, m_size - 1, -1); }
 		ConstIterator constIterator() const { return ConstIterator(this); }
-		ConstIterator constReverseIterator() const { return ConstIterator(this, m_size - 1 ); }
+		ConstIterator constReverseIterator() const { return ConstIterator(this, m_size - 1, -1); }
 
 	public:
 		Array();
