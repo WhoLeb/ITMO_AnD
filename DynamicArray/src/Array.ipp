@@ -181,7 +181,7 @@ namespace myStl
 			}
 		}
 
-		new (&m_data[index]) T(std::move(value));
+		new (&m_data[index]) T(value);
 		m_size++;
 
 		return index;
@@ -189,14 +189,14 @@ namespace myStl
 
 
 	template<typename T>
-	inline size_t Array<T>::insert(std::initializer_list<T> initList)
+	inline size_t Array<T>::insert(const std::initializer_list<T>& initList)
 	{
 		return insert(m_size, initList);
 	}
 
 
 	template<typename T>
-	inline size_t Array<T>::insert(size_t index, std::initializer_list<T> initList)
+	inline size_t Array<T>::insert(size_t index, const std::initializer_list<T>& initList)
 	{
 		size_t n = initList.size();
 		if ((m_size + n) >= m_capacity)
@@ -231,14 +231,18 @@ namespace myStl
 	{
 		m_data[index].~T();
 		if constexpr (std::is_move_assignable<T>::value)
+		{
 			for (size_t i = index; i < m_size; i++)
-				m_data[i] = std::move(m_data[i + 1]);
+				new(&m_data[i]) T(std::move(m_data[i + 1]));
+		}
 		else
+		{
 			for (size_t i = index; i < m_size; i++)
 			{
-				m_data[i] = m_data[i + 1];
+				new(&m_data[i]) T(m_data[i + 1]);
 				m_data[i + 1].~T();
 			}
+		}
 		m_size--;
 	}
 

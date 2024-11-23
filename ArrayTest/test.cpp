@@ -123,6 +123,16 @@ TEST(ArrayTests, MoveCheck)
 	EXPECT_EQ(a, myStl::Array<MovableClass>());
 }
 
+TEST(ComplexTest, UnmovableClassCheck)
+{
+	myStl::Array<UnmovableClass> a = { 1, 2 };
+	myStl::Array<UnmovableClass> b = { 1, 3 };
+	a.insert(3);
+	a.remove(1);
+
+	EXPECT_EQ(a, b);
+}
+
 int main(int argc, char** argv)
 {
 	testing::InitGoogleTest(&argc, argv);

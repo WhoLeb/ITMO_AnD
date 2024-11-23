@@ -270,8 +270,8 @@ void City::ProcessInput()
 			m_WorkableArea = plantTarget;
 			break;
 		}
-		std::cout << "Правитель, помилуй, у нас нет столько пшена и людей. У нас всего "
-			<< m_WheatReserves << " бушелей и " << m_Population << " человек.";
+		std::cout << "Правитель, помилуй, у нас нет столько пшена, людей или арков. У нас всего "
+			<< m_WheatReserves << " бушелей, " << m_Population << " человек и " << m_Area << " арков.";
 	}
 }
 

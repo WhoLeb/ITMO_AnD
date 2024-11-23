@@ -188,8 +188,8 @@ namespace myStl
 		size_t insert(size_t index, const T& value);
 		size_t insert(size_t index, T&& value);
 
-		size_t insert(std::initializer_list<T> initList);
-		size_t insert(size_t index, std::initializer_list<T> initList);
+		size_t insert(const std::initializer_list<T>& initList);
+		size_t insert(size_t index, const std::initializer_list<T>& initList);
 
 		void remove(size_t index);
 		
