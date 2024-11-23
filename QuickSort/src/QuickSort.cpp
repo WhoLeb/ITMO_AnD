@@ -4,8 +4,7 @@
 
 #include "MyAlgorithm.h"
 #include "../../DynamicArray/src/Array.h"
-#define ANKERL_NANOBENCH_IMPLEMENT
-#include "nanobench.h"
+#include "chrono"
 #include <string>
 #include <random>
 
@@ -16,23 +15,50 @@ int main()
 	int* arr = new int[ArrSize];
 	int* copyArr = new int[ArrSize];
 	for (int i = 0; i < ArrSize; i++)
-		arr[i] = rand();
+		arr[i] = rand()/1000;
 	memcpy(copyArr, arr, ArrSize);
-
-	//myStl::insertionSortThreshold = 3;
-	myStl::quickSort(arr, arr + 10, std::less<int>());
-	//ankerl::nanobench::Bench().epochIterations(5).run("Insertion sort", [&] {
-	//	myStl::insertionSort(copyArr, copyArr + ArrSize, [](int a, int b) { return a < b; });
-	//	});
 
 	for (int i = 2; i <= 100000; i *= 2)
 	{
-		std::string BenchName = "Quick sort with insertion sort threshold " + std::to_string(i);
-		ankerl::nanobench::Bench().epochIterations(5).run(BenchName, [&] {
-			//myStl::insertionSortThreshold = i;
-			myStl::quickSort(copyArr, copyArr + ArrSize, [](int a, int b) { return a < b; });
-			});
-		memcpy(copyArr, arr, ArrSize);
+		constexpr int iterations = 1000;
+		std::chrono::duration<double> qSortDuration;
+		for (int j = 0; j < iterations; j++)
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+			myStl::quickSort(copyArr, copyArr + i, std::less<int>());
+			auto end = std::chrono::high_resolution_clock::now();
+			memcpy(copyArr, arr, i);
+			qSortDuration += end - start;
+		}
+		double qSortAverage = qSortDuration.count() / iterations;
+		std::cout << "ArraySize: " << std::setw(8) << i << "\tQSort time: " << qSortAverage << "\t";
+
+		std::chrono::duration<double> iSortDuration;
+		for (int j = 0; j < iterations; j++)
+		{
+			auto start = std::chrono::high_resolution_clock::now();
+			myStl::insertionSort(copyArr, copyArr + i, std::less<int>());
+			auto end = std::chrono::high_resolution_clock::now();
+			memcpy(copyArr, arr, i);
+			iSortDuration += end - start;
+		}
+		double iSortAverage = iSortDuration.count() / iterations;
+		std::cout << "ISort time: " << iSortAverage << "\tQSort is " << std::setw(8) << iSortAverage / qSortAverage << " times faster" << "\n";
 	}
+
+	//auto start = std::chrono::high_resolution_clock::now();
+	//myStl::quickSort(copyArr, copyArr + ArrSize, [](int a, int b) { return a < b; });
+	//auto end = std::chrono::high_resolution_clock::now();
+	//std::chrono::duration<double> qSortDuration = end - start;
+
+	//memcpy(copyArr, arr, ArrSize);
+	//std::cout << "ArraySize: " << std::setw(8) << ArrSize << "\tQSort time: " << qSortDuration.count() << "\t";
+
+	//start = std::chrono::high_resolution_clock::now();
+	//myStl::insertionSort(copyArr, copyArr + ArrSize, [](int a, int b) { return a < b; });
+	//end = std::chrono::high_resolution_clock::now();
+	//std::chrono::duration<double> iSortDuration = end - start;
+	//memcpy(copyArr, arr, ArrSize);
+	//std::cout << "ISort time: " << iSortDuration.count() << "\n";
 }
 

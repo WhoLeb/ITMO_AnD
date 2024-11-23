@@ -104,7 +104,7 @@ TEST(PrimitiveArrays, SmallRandomPrimitiveArray)
 // Test for large random primitive array
 TEST(PrimitiveArrays, LargeRandomPrimitiveArray)
 {
-	constexpr size_t ArrayLength = 1000000;
+	constexpr size_t ArrayLength = 10'000'000;
 	int* arr = generateRandomArray(ArrayLength);
 	int* expected = new int[ArrayLength];
 	std::copy(arr, arr + ArrayLength, expected);
@@ -266,7 +266,7 @@ TEST(CustomArrays, SmallRandomCustomArray)
 // Test for large random custom array
 TEST(CustomArrays, LargeRandomCustomArray)
 {
-	constexpr size_t ArrayLength = 1000000;
+	constexpr size_t ArrayLength = 10'000'000;
 	myStl::Array<int> arr = generateCustomRandomArray<int>(ArrayLength);
 	myStl::Array<int> expected = arr;
 	std::sort(expected.begin(), expected.end());

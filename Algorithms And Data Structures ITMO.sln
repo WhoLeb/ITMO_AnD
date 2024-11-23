@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QuickSort", "QuickSort\Quic
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SortingTest", "SortingTest\SortingTest.vcxproj", "{DD401421-EA95-414F-BD20-EF430DA02F3A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MemoryManager", "MemoryManager\MemoryManager.vcxproj", "{E506C392-CF08-47A7-AA9B-74B83AB69BDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{DD401421-EA95-414F-BD20-EF430DA02F3A}.Release|x64.Build.0 = Release|x64
 		{DD401421-EA95-414F-BD20-EF430DA02F3A}.Release|x86.ActiveCfg = Release|Win32
 		{DD401421-EA95-414F-BD20-EF430DA02F3A}.Release|x86.Build.0 = Release|Win32
+		{E506C392-CF08-47A7-AA9B-74B83AB69BDD}.Debug|x64.ActiveCfg = Debug|x64
+		{E506C392-CF08-47A7-AA9B-74B83AB69BDD}.Debug|x64.Build.0 = Debug|x64
+		{E506C392-CF08-47A7-AA9B-74B83AB69BDD}.Debug|x86.ActiveCfg = Debug|Win32
+		{E506C392-CF08-47A7-AA9B-74B83AB69BDD}.Debug|x86.Build.0 = Debug|Win32
+		{E506C392-CF08-47A7-AA9B-74B83AB69BDD}.Release|x64.ActiveCfg = Release|x64
+		{E506C392-CF08-47A7-AA9B-74B83AB69BDD}.Release|x64.Build.0 = Release|x64
+		{E506C392-CF08-47A7-AA9B-74B83AB69BDD}.Release|x86.ActiveCfg = Release|Win32
+		{E506C392-CF08-47A7-AA9B-74B83AB69BDD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

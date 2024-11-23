@@ -36,7 +36,7 @@ namespace myStl
 
 		swap(*mid, *(last - 1));
 
-		auto pivot = *(last - 1);
+		auto& pivot = *(last - 1);
 		It left = first;
 		It right = last - 2;
 
@@ -56,7 +56,7 @@ namespace myStl
 	template<typename It, typename Compare>
 	void quickSort(It first, It last, Compare comp)
 	{
-		constexpr int insertionSortThreshold = 512;
+		constexpr int insertionSortThreshold = 2048;
 		while (last - first > insertionSortThreshold)
 		{
 			It pivot = myStl::partition(first, last, comp);

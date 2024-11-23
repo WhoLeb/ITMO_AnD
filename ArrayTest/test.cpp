@@ -81,7 +81,7 @@ TEST(ArrayTests, IntegerReverseIterationCheck) {
 	std::vector<int> tmp(4);
 	std::vector<int> control = { 4, 3, 2, 1 };
 	int i = 0;
-	for (auto it = a.constReverseIterator(); it.hasPrevious(); it.previous())
+	for (auto it = a.reverseIterator(); it.hasNext(); it.next())
 		tmp[i++] = it.get();
 
 	EXPECT_EQ(tmp, control);
