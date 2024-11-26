@@ -56,7 +56,7 @@ namespace myStl
 	template<typename It, typename Compare>
 	void quickSort(It first, It last, Compare comp)
 	{
-		constexpr int insertionSortThreshold = 2048;
+		constexpr int insertionSortThreshold = 0;
 		while (last - first > insertionSortThreshold)
 		{
 			It pivot = myStl::partition(first, last, comp);

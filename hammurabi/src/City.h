@@ -22,8 +22,6 @@ public:
 	City(City&&) = delete;
 	City& operator=(City&&) = delete;
 
-	inline uint32_t GetRound() const { return m_Round; }
-
 	void Run();
 
 private:

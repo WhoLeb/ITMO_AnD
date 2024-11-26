@@ -1,20 +1,50 @@
-// MemoryManager.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include <iostream>
+#include "MyMemory.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	myStl::MemoryManager allocator;
+	allocator.init();
+
+	//void* p1 = allocator.alloc(1000);
+	//void* p2 = allocator.alloc(1000);
+	//void* p3 = allocator.alloc(1000);
+	//allocator.dumpStat();
+	//allocator.free(p1);
+	//allocator.dumpStat();
+	//allocator.free(p1);
+	//allocator.dumpStat();
+	//allocator.free(p2);
+	//allocator.free(p3);
+
+	void** ppc = (void**)allocator.alloc(sizeof(void*) * 6);
+	for (int i = 0; i < 6; i++)
+		ppc[i] = allocator.alloc(512);
+	allocator.free(ppc[3]);
+	for (int i = 0; i < 6; i++)
+	{
+		if (i == 3)
+			continue;
+		allocator.free(ppc[i]);
+	}
+	allocator.free(ppc);
+
+	//int* p1 = (int*)allocator.alloc(1000 * sizeof(int));
+	//int* p2 = (int*)allocator.alloc(8020 * sizeof(int));
+	//double* pd = (double*)allocator.alloc(sizeof(double));
+	//int* pa = (int*)allocator.alloc(10 * sizeof(int));
+	//allocator.dumpStat();
+	//allocator.dumpBlocks();
+	//allocator.free(pa);
+	//allocator.free(pd);
+	//allocator.free(p1);
+	//allocator.dumpStat();
+	//allocator.free(p2);
+	//allocator.dumpStat();
+	//std::cout << "\n";
+	//for (int i = 0; i < 1000; i++)
+	//{
+	//	std::cout << pi;
+	//}
+	allocator.destroy();
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
