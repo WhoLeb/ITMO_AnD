@@ -39,7 +39,7 @@ namespace myStl
 		for (int i = 0; i < NUM_BLOCK_SIZES; i++)
 			fsAllocators[i].init(blockSizes[i], (UINT8)i);
 
-		freeListAllocator.init();
+		freeListAllocator.init(1024 * 4);
 		m_bIsInitialized = true;
 	}
 
@@ -118,8 +118,6 @@ namespace myStl
 			RegionHeader* regionHeader = (RegionHeader*)regionMemory;
 			regionHeader->allocatorType = (UINT8)AllocatorType::OS;
 			regionHeader->allocatorIndex = 0;
-			regionHeader->padding = 0;
-			regionHeader->padding2 = 0;
 
 			// Usable memory starts after RegionHeader
 			// OSAllocation struct is placed immediately after RegionHeader
@@ -191,7 +189,8 @@ namespace myStl
 			{
 				// Free via OS
 				void* regionMemory = (void*)regionHeader;
-				VirtualFree(regionMemory, 0, MEM_RELEASE);
+				if(!VirtualFree(regionMemory, 0, MEM_RELEASE))
+					assert(false);
 			}
 			else
 			{
@@ -279,24 +278,32 @@ namespace myStl
 		return NUM_BLOCK_SIZES;
 	}
 
-	 MemoryManager::RegionHeader* MemoryManager::getRegionHeader(void* p)
+	MemoryManager::RegionHeader* MemoryManager::getRegionHeader(void* p)
 	{
-		FSBlock* fsBlock = (FSBlock*)((char*)p - sizeof(FSBlock));
-		RegionHeader* regionHeader = fsBlock->regionHeader;
+		if (!p)
+			return nullptr;
 
-		if (regionHeader && (regionHeader->allocatorType == (UINT8)AllocatorType::FixedSize))
-			return regionHeader;
+		// Check if the pointer belongs to OS memory
+		OSAllocation* currentOS = m_OSAllocations;
+		while (currentOS)
+		{
+			if(currentOS + 1 == p)
+				return (RegionHeader*)((char*)p - sizeof(RegionHeader) - sizeof(OSAllocation));
+			currentOS = currentOS->next;
+		}
 
-		FLBlock* flBlock = (FLBlock*)((char*)p - sizeof(FLBlock));
-		regionHeader = flBlock->regionHeader;
+		// Check if the pointer belongs to FixedSize allocator
+		for (int i = 0; i < NUM_BLOCK_SIZES; i++)
+		{
+			if(fsAllocators[i].find(p))
+				return ((FSBlock*)((char*)p - sizeof(FSBlock)))->regionHeader;
+		}
 
-		if (regionHeader && (regionHeader->allocatorType == (UINT8)AllocatorType::FreeList))
-			return regionHeader;
+		// Check if the pointer belongs to FreeList allocator
+		if(freeListAllocator.find(p))
+			return ((FLBlock*)((char*)p - sizeof(FLBlock)))->regionHeader;
 
-		regionHeader = (RegionHeader*)((char*)p - sizeof(RegionHeader));
-		if (regionHeader && (regionHeader->allocatorType == (UINT8)AllocatorType::OS))
-			return regionHeader;
-
+		// Pointer does not belong to any known allocator
 		return nullptr;
 	}
 
@@ -347,7 +354,7 @@ namespace myStl
 #ifndef NDEBUG
 		if (!block->used)
 		{
-			std::cerr << "Error: Attempt to free a block that is already free." << std::endl;
+			std::cerr << "\nError: Attempt to free a block that is already free.\n" << std::endl;
 			assert(false && "Double-free detected in FSAllocator::free");
 			return;
 		}
@@ -466,7 +473,7 @@ namespace myStl
 	size_t FSAllocator::calculateRegionSize(size_t blockSize) const
 	{
 		size_t blockTotalSize = sizeof(Block) + blockSize;
-		size_t numBlocks = (1024 * 1024 * 32) / blockTotalSize;
+		size_t numBlocks = (1024 * 10) / blockTotalSize;
 		return align(numBlocks * blockTotalSize);
 	}
 
@@ -563,10 +570,10 @@ namespace myStl
 			return nullptr;
 
 		// Try allocation again
-		block = findFreeBlock(size);
+		block = findFreeBlock(totalSize);
 		if (block)
 		{
-			splitBlock(block, size);
+			splitBlock(block, totalSize);
 			block->used = true;
 			return (void*)((char*)block + sizeof(Block));
 		}
@@ -678,7 +685,7 @@ namespace myStl
 		if (block->size >= size + sizeof(Block) + MIN_BLOCK_SIZE)
 		{
 			Block* newBlock = (Block*)((char*)block + size);
-			newBlock->size = block->size - size;
+			newBlock->size = block->size - (size + sizeof(Block));
 			newBlock->used = false;
 			newBlock->next = block->next;
 			newBlock->previous = block;
@@ -694,7 +701,7 @@ namespace myStl
 
 	void FreeListAllocator::coalesce(Block* block)
 	{
-		if (block->previous && !block->previous->used)
+		if (block->previous && !block->previous->used && block->previous->regionHeader == block->regionHeader)
 		{
 			block->previous->size += sizeof(Block) + block->size;
 			block->previous->next = block->next;
@@ -703,7 +710,7 @@ namespace myStl
 			block = block->previous;
 		}
 
-		if (block->next && !block->next->used)
+		if (block->next && !block->next->used && block->next->regionHeader == block->regionHeader)
 		{
 			block->size += sizeof(Block) + block->next->size;
 			block->next = block->next->next;
@@ -711,7 +718,7 @@ namespace myStl
 				block->next->previous = block;
 		}
 
-		char* usableMemoryStart = (char*)block->regionHeader + sizeof(RegionHeader);
+		char* usableMemoryStart = (char*)block->regionHeader + align(sizeof(RegionHeader));
 		char* blockStart = (char*)block;
 		size_t regionUsableSize = m_MemoryRegions.getRegionSize();
 

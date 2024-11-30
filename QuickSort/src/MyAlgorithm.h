@@ -59,6 +59,11 @@ namespace myStl
 		constexpr int insertionSortThreshold = 0;
 		while (last - first > insertionSortThreshold)
 		{
+			if (last - first <= insertionSortThreshold)
+			{
+				insertionSort(first, last, comp);
+				return;
+			}
 			It pivot = myStl::partition(first, last, comp);
 			if (pivot - first < last - (pivot + 1))
 			{
@@ -71,7 +76,6 @@ namespace myStl
 				last = pivot;
 			}
 		}
-		insertionSort(first, last, comp);
 	}
 
 }

@@ -8,12 +8,12 @@
 #include <string>
 #include <random>
 
-int main()
-{
 	constexpr int ArrSize = 10'000'000;
 	
-	int* arr = new int[ArrSize];
-	int* copyArr = new int[ArrSize];
+int arr[ArrSize];
+int copyArr[ArrSize];
+int main()
+{
 	for (int i = 0; i < ArrSize; i++)
 	{
 		arr[i] = ArrSize - i;
@@ -25,29 +25,29 @@ int main()
 
 	for (int i = 2; i <= 100000; i *= 2)
 	{
-		constexpr int iterations = 1000;
-		std::chrono::duration<double> qSortDuration;
+		constexpr int iterations = 100;
+		double qSortDuration = 0;
 		for (int j = 0; j < iterations; j++)
 		{
 			auto start = std::chrono::high_resolution_clock::now();
 			myStl::quickSort(copyArr, copyArr + i, std::less<int>());
 			auto end = std::chrono::high_resolution_clock::now();
 			memcpy(copyArr, arr, i);
-			qSortDuration += end - start;
+			qSortDuration += (end - start).count();
 		}
-		double qSortAverage = qSortDuration.count() / iterations;
+		double qSortAverage = qSortDuration / iterations;
 		std::cout << "ArraySize: " << std::setw(8) << i << "\tQSort time: " << qSortAverage << "\t";
 
-		std::chrono::duration<double> iSortDuration;
+		double iSortDuration = 0;
 		for (int j = 0; j < iterations; j++)
 		{
 			auto start = std::chrono::high_resolution_clock::now();
 			myStl::insertionSort(copyArr, copyArr + i, std::less<int>());
 			auto end = std::chrono::high_resolution_clock::now();
 			memcpy(copyArr, arr, i);
-			iSortDuration += end - start;
+			iSortDuration += (end - start).count();
 		}
-		double iSortAverage = iSortDuration.count() / iterations;
+		double iSortAverage = iSortDuration / iterations;
 		std::cout << "ISort time: " << iSortAverage << "\tQSort is " << std::setw(8) << iSortAverage / qSortAverage << " times faster" << "\n";
 	}
 

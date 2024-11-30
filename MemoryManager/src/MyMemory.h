@@ -89,6 +89,18 @@ namespace myStl
 
 		bool isEmpty() const { return m_AllocatedBlockCount == 0; }
 
+		bool find(void* ptr)
+		{
+			MemoryRegions::Region* current = m_MemoryRegions.getHead();
+			while (current)
+			{
+				if (ptr > current && ptr < (char*)current + m_MemoryRegions.getRegionSize())
+					return true;
+				current = current->next;
+			}
+			return false;
+		}
+
 #ifndef NDEBUG
 		// Dump statistics about the allocator
 		void dumpStat() const;
@@ -155,6 +167,18 @@ namespace myStl
 		void free(void* ptr);
 
 		bool isEmpty() const;
+
+		bool find(void* ptr)
+		{
+			Block* current = m_Head;
+			while (current)
+			{
+				if ((Block*)ptr - 1 == current)
+					return true;
+				current = current->next;
+			}
+			return false;
+		}
 
 #ifndef NDEBUG
 		// Dump statistics about the allocator
